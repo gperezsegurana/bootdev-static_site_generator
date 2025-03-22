@@ -1,36 +1,53 @@
 import unittest
-from htmlnode import HTMLnode
+from htmlnode import HTMLNode, LeafNode
 
 
 class TestHTMLnode(unittest.TestCase):
     def test_initialization(self):
-        node = HTMLnode(tag="div", value="Hello", children=[],
+        node = HTMLNode(tag="div", value="Hello", children=None,
                         props={"class": "container"})
         self.assertEqual(node.tag, "div")
         self.assertEqual(node.value, "Hello")
-        self.assertEqual(node.children, [])
+        self.assertEqual(node.children, None)
         self.assertEqual(node.props, {"class": "container"})
 
     def test_props_to_html(self):
-        node = HTMLnode(props={"class": "container", "id": "main"})
+        node = HTMLNode(props={"class": "container", "id": "main"})
         self.assertEqual(node.props_to_html(), ' class="container" id="main"')
 
     def test_props_to_html_empty(self):
-        node = HTMLnode(props={})
+        node = HTMLNode(props={})
         self.assertEqual(node.props_to_html(), "")
 
     def test_repr(self):
-        node = HTMLnode(tag="p", value="Text", children=None,
+        node = HTMLNode(tag="p", value="Text", children=None,
                         props={"style": "color:red;"})
         self.assertEqual(
             repr(node),
-            "HTMLnode(tag=p, value=Text, children=None, props={'style': 'color:red;'})"
+            "HTMLNode(p, Text, children: None, {'style': 'color:red;'})"
         )
 
     def test_to_html_not_implemented(self):
-        node = HTMLnode()
+        node = HTMLNode()
         with self.assertRaises(NotImplementedError):
             node.to_html()
+
+
+class TestLeafNode(unittest.TestCase):
+    def test_leaf_to_html_p(self):
+        node = LeafNode("p", "Hello, world!")
+        self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
+
+    def test_leaf_to_html_a(self):
+        node = LeafNode("a", "Click me!", {"href": "https://www.google.com"})
+        self.assertEqual(
+            node.to_html(),
+            '<a href="https://www.google.com">Click me!</a>',
+        )
+
+    def test_leaf_to_html_no_tag(self):
+        node = LeafNode(None, "Hello, world!")
+        self.assertEqual(node.to_html(), "Hello, world!")
 
 
 if __name__ == "__main__":
